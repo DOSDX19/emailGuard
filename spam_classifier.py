@@ -25,16 +25,16 @@ print(Y)
 
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state  = 3)
 
-print(X.shap)
+print(X.shape)
 print(X_train.shape)
 print(X_test.shape)
 
-print(Y.shap)
+print(Y.shape)
 print(Y_train.shape)
 print(Y_test.shape)
 
 
-feature_extraction = TfidfVectorizer(min_df = 1, stop_words = 'english', lowercase='True')
+feature_extraction = TfidfVectorizer(min_df = 1, stop_words = 'english', lowercase=True)
 
 X_train_features = feature_extraction.fit_transform(X_train)
 X_test_features = feature_extraction.transform(X_test)
@@ -74,7 +74,7 @@ else:
     print('Spam mail')
 
 
-print('Ham email' if prediction[0] == 1 else 'Spam email')
+#print('Ham email' if prediction[0] == 1 else 'Spam email') #this doesn't change anything
 
 
 
