@@ -1,37 +1,37 @@
-import numpy as np
 import pandas as pd 
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
-df = pd.read_csv('spam.csv')
-print(df)
+#Initilizing whitelist/blacklist
+whitelist = list()
+blacklist = list()
 
+
+#loading spam/ham emails senders dataset
+senders_data = pd.read_csv('spam_email_dataset.csv', usecols=['Sender', 'Spam Indicator'])
+#extract senders from senders dataset
+senders = senders_data[['Sender']]
+#Convert sender column into series 
+senders = pd.Series(senders.squeeze())
+
+#Loading spam/ham emails dataset
+df = pd.read_csv('spam.csv')
 
 data = df.where((pd.notnull(df)), '')
-print('head >>>>>' , df.head())
-print('info >>>>>' ,df.info())
-print('shap >>>>>' ,df.shape)
 
 data.loc[data['Category'] == 'spam', 'Category'] = 0
 data.loc[data['Category'] == 'ham', 'Category'] = 1
 
-X = data['Message']
+
+# print(spam_emails)
+# print(spam_emails)
+X = data['Message'] 
 Y = data['Category']
 
-print(X)
-print(Y)
 
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state  = 3)
-
-print(X.shape)
-print(X_train.shape)
-print(X_test.shape)
-
-print(Y.shape)
-print(Y_train.shape)
-print(Y_test.shape)
 
 
 feature_extraction = TfidfVectorizer(min_df = 1, stop_words = 'english', lowercase=True)
@@ -42,9 +42,6 @@ X_test_features = feature_extraction.transform(X_test)
 Y_train = Y_train.astype('int')
 Y_test = Y_test.astype('int')
 
-print(X_train)
-print(X_train_features)
-
 model = LogisticRegression()
 
 model.fit(X_train_features, Y_train)
@@ -52,29 +49,46 @@ model.fit(X_train_features, Y_train)
 prediction_on_training_data = model.predict(X_train_features)
 accuracy_on_training_data = accuracy_score(Y_train, prediction_on_training_data)
 
-print('Acc on training data: ', accuracy_on_training_data)
+print('Accuracy on training data: ', accuracy_on_training_data)
 
 prediction_on_test_data = model.predict(X_test_features)
 accuracy_on_test_data = accuracy_score(Y_test, prediction_on_test_data)
 
-print('acc on test : ', accuracy_on_test_data)
+print('Accuracy on test : ', accuracy_on_test_data)
 
-email = ['']
+emails = []
 
-email_data_features = feature_extraction.transform(email)
+message = input("Enter the message: ")
+email_sender =  input("Enter the sender's email: ")
+
+for email, spam_indecator in senders_data.iterrows():
+    if email == email_sender and spam_indecator == 0:
+        print(f'B >> {email} , {spam_indecator}')
+        blacklist.append(email)
+    else:
+        # print(f'B >> {email} , {spam_indecator}')
+        whitelist.append(email)
+
+if email_sender in blacklist:
+    print(f'{email_sender} was found in the blacklist')
+    print(f'{email_sender} is spam email sender')
+    exit()
+
+
+emails.append(message)
+
+
+# email = [""]
+
+email_data_features = feature_extraction.transform(emails)
 
 prediction = model.predict(email_data_features)
 
 
 print(prediction)
 
-if(prediction[0] == 1):
-    print('Ham mail')
-else:
-    print('Spam mail')
-
-
-#print('Ham email' if prediction[0] == 1 else 'Spam email') #this doesn't change anything
+print('this sender is already in the blacklist') #if  == 1 else 'Spam email') 
+print('Ham email' if prediction[0] == 1 else 'Spam email') 
 
 
 
