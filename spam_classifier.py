@@ -5,16 +5,12 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 
 #Initilizing whitelist/blacklist
-whitelist = list()
-blacklist = list()
+whitelist = []
+blacklist = []
 
 
 #loading spam/ham emails senders dataset
-senders_data = pd.read_csv('spam_email_dataset.csv', usecols=['Sender', 'Spam Indicator'])
-#extract senders from senders dataset
-senders = senders_data[['Sender']]
-#Convert sender column into series 
-senders = pd.Series(senders.squeeze())
+senders_data = pd.read_csv('spam_email_dataset.csv', usecols=['Sender', 'Spam Indicator'], index_col='Sender')
 
 #Loading spam/ham emails dataset
 df = pd.read_csv('spam.csv')
@@ -24,9 +20,6 @@ data = df.where((pd.notnull(df)), '')
 data.loc[data['Category'] == 'spam', 'Category'] = 0
 data.loc[data['Category'] == 'ham', 'Category'] = 1
 
-
-# print(spam_emails)
-# print(spam_emails)
 X = data['Message'] 
 Y = data['Category']
 
@@ -62,23 +55,16 @@ message = input("Enter the message: ")
 email_sender =  input("Enter the sender's email: ")
 
 for email, spam_indecator in senders_data.iterrows():
-    if email == email_sender and spam_indecator == 0:
-        print(f'B >> {email} , {spam_indecator}')
+    if email_sender == email and spam_indecator[len(spam_indecator) - 1] == 0:
+        print(f'B >> {email} , {spam_indecator[len(spam_indecator) - 1]}')
         blacklist.append(email)
     else:
-        # print(f'B >> {email} , {spam_indecator}')
+        print(f'W >> {email} , {spam_indecator[len(spam_indecator) - 1]}')
         whitelist.append(email)
-
-if email_sender in blacklist:
-    print(f'{email_sender} was found in the blacklist')
-    print(f'{email_sender} is spam email sender')
-    exit()
 
 
 emails.append(message)
 
-
-# email = [""]
 
 email_data_features = feature_extraction.transform(emails)
 
@@ -87,7 +73,7 @@ prediction = model.predict(email_data_features)
 
 print(prediction)
 
-print('this sender is already in the blacklist') #if  == 1 else 'Spam email') 
+print('this sender is already in the blacklist' if email_sender in blacklist else 'this sender in the whitelist') 
 print('Ham email' if prediction[0] == 1 else 'Spam email') 
 
 
